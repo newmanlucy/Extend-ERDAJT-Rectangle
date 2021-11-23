@@ -2,6 +2,7 @@
 extend.py: Extend ERDAJT lights sequences from the rectangle to the rest of the show
 """
 
+from typing import overload
 import xml.etree.ElementTree as ET
 import re
 import ntpath
@@ -171,15 +172,17 @@ if __name__ == '__main__':
     fileName = "Sandstorm.lms"
 
     parser = argparse.ArgumentParser(description='Spread Rectangle to ERDAJT Lights Sequence.')
-    parser.add_argument('--no-RGB', action=argparse.BooleanOptionalAction, dest='noRGB',
-        description="don't spread to RGB lights")
-    parser.add_argument('--no-trees', action=argparse.BooleanOptionalAction, dest='noTrees',
-        description="don't spread to RGB lights")
-    parser.add_argument('--override', action=argparse.BooleanOptionalAction, dest='override',
-        description="override any channels from elements other than the rectangle that already have any effects")
-    parser.add_argument('--sum', dest='accumulate', action='store_const',
-                        const=sum, default=max,
-                        help='sum the integers (default: find the max)')
+    parser.add_argument('--RGB', dest='RGB', action='store_true')
+    parser.add_argument('--no-RGB', dest='RGB', action='store_false')
+    parser.set_defaults(RGB=True)
+    parser.add_argument('--trees', dest='trees', action='store_true')
+    parser.add_argument('--no-trees', dest='trees', action='store_false')
+    parser.set_defaults(trees=True)
+    parser.add_argument('--override', dest='override', action='store_true')
+    parser.add_argument('--no-override', dest='override', action='store_false')
+    parser.set_defaults(override=False)
+    parser.add_argument('lms_file_name')
 
     args = parser.parse_args()
-    print(args.accumulate(args))
+
+    spreadEffects(args.lms_file_namme, rgb=args.RGB, trees=args.trees, override=args.override)
