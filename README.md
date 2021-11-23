@@ -14,7 +14,7 @@ I haven't tested this in other environments, but I don't think you should need t
 Move your input file to `inputSequences`, then run the command below from the root directory of this repository.
 
 ```
-python3 extend.py [optional args] lms_file_name
+python3 extend.py [optional args] MySequence.lms
 ```
 
 The output should appear in `outputSequences`.
