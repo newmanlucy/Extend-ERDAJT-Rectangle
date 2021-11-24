@@ -2,12 +2,8 @@
 extend.py: Extend ERDAJT lights sequences from the rectangle to the rest of the show
 """
 
-from typing import overload
 import xml.etree.ElementTree as ET
-import re
-import ntpath
 import json
-from shutil import copyfile
 import argparse
 
 # unit 27 circuit 5 is rect 1-1
@@ -115,22 +111,25 @@ def spreadEffects(assignmentFile, lmsFile, root=None, rectEffectDict=None, chann
     # spreadEffectsDict = {}
     channel = root.find("channels")
     for a in assignments:
-        modelEffects = rectEffectDict[a["modelChannel"][0]][a["modelChannel"][1]]
-        # spreadEffectsDict[a["modelChannel"]] = modelEffects
-        for c in a["childChannels"]:
-            unit = c[0]
-            circuit = c[1]
-            childNum = unitCircuitToChannel(unit, circuit)
-            try:
-                childChannel = channelDict[childNum]
-                xmlSearch = "*[@unit=\"%d\"][@circuit=\"%d\"]" % (unit, circuit)
-                xmlChildChannel = channel.find(xmlSearch)
-                if override:
-                    for effect in xmlChildChannel.findall("effect"):
-                        xmlChildChannel.remove(effect)
-                xmlChildChannel.extend(modelEffects)
-            except:
-                pass
+        try:
+            modelEffects = rectEffectDict[a["modelChannel"][0]][a["modelChannel"][1]]
+            # spreadEffectsDict[a["modelChannel"]] = modelEffects
+            for c in a["childChannels"]:
+                unit = c[0]
+                circuit = c[1]
+                childNum = unitCircuitToChannel(unit, circuit)
+                try:
+                    childChannel = channelDict[childNum]
+                    xmlSearch = "*[@unit=\"%d\"][@circuit=\"%d\"]" % (unit, circuit)
+                    xmlChildChannel = channel.find(xmlSearch)
+                    if override:
+                        for effect in xmlChildChannel.findall("effect"):
+                            xmlChildChannel.remove(effect)
+                    xmlChildChannel.extend(modelEffects)
+                except:
+                    pass
+        except:
+            pass
     return root, rectEffectDict, channelDict
 
 
@@ -185,4 +184,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    spreadEffects(args.lms_file_namme, rgb=args.RGB, trees=args.trees, override=args.override)
+    spreadAll(args.lms_file_name, rgb=args.RGB, trees=args.trees, override=args.override)
