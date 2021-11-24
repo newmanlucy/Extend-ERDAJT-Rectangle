@@ -108,8 +108,8 @@ def spreadEffects(assignmentFile, lmsFile, root=None, rectEffectDict=None, chann
         assignments = json.load(f)
     if root is None:
         root, rectEffectDict, channelDict = parseLMS(lmsFile)
-    # spreadEffectsDict = {}
     channel = root.find("channels")
+    errors = {"channels": [], "assignments": []}
     for a in assignments:
         try:
             modelEffects = rectEffectDict[a["modelChannel"][0]][a["modelChannel"][1]]
@@ -127,9 +127,15 @@ def spreadEffects(assignmentFile, lmsFile, root=None, rectEffectDict=None, chann
                             xmlChildChannel.remove(effect)
                     xmlChildChannel.extend(modelEffects)
                 except:
-                    pass
+                    errors["channels"].append(c)
         except:
-            pass
+            errors["assignments"].append(a)
+    if errors["channels"] != []:
+        print("There were errorrs with the following channels:")
+        print(errors["channels"])
+    if errors["assignments"] != []:
+        print("there were errors with the following assingments")
+        print(errors["assignments"])
     return root, rectEffectDict, channelDict
 
 
