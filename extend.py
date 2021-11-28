@@ -108,7 +108,7 @@ def spreadEffects(assignmentFile, lmsFile, root=None, rectEffectDict=None, chann
         assignments = json.load(f)
     if root is None:
         root, rectEffectDict, channelDict = parseLMS(lmsFile)
-    channel = root.find("channels")
+    channels = root.find("channels")
     errors = {"channels": [], "assignments": []}
     for a in assignments:
         try:
@@ -119,9 +119,8 @@ def spreadEffects(assignmentFile, lmsFile, root=None, rectEffectDict=None, chann
                 circuit = c[1]
                 childNum = unitCircuitToChannel(unit, circuit)
                 try:
-                    childChannel = channelDict[childNum]
                     xmlSearch = "*[@unit=\"%d\"][@circuit=\"%d\"]" % (unit, circuit)
-                    xmlChildChannel = channel.find(xmlSearch)
+                    xmlChildChannel = channels.find(xmlSearch)
                     if override:
                         for effect in xmlChildChannel.findall("effect"):
                             xmlChildChannel.remove(effect)
@@ -139,7 +138,7 @@ def spreadEffects(assignmentFile, lmsFile, root=None, rectEffectDict=None, chann
     return root, rectEffectDict, channelDict
 
 
-def spreadAll(lmsFile, basic=True, rgb=True, trees=True, override=False):
+def spreadAll(lmsFile, basic=True, rgb=True, trees=True, reindeer_only=False, override=False):
     """
     spreadAll -- replaces lmsFile with the result of the spreading and creates a backup
     lmsFile: the input file
@@ -157,6 +156,12 @@ def spreadAll(lmsFile, basic=True, rgb=True, trees=True, override=False):
     assignBasic = "assignFiles/assign.json"
     assignTrees = "assignFiles/assignTrees.json"
     assignRGB = "assignFiles/assignRGB.json"
+    assignReindeer = "assignFiles/assignReindeer.json"
+    if reindeer_only:
+        root, rectEffectDict, channelDict = spreadEffects(assignReindeer, inputFilePath, override=override)
+        tree = ET.ElementTree(root)
+        tree.write(outputFilePath)
+        return
     if basic:
         root, rectEffectDict, channelDict = spreadEffects(assignBasic, inputFilePath, override=override)
         if trees:
@@ -186,8 +191,17 @@ if __name__ == '__main__':
     parser.add_argument('--override', dest='override', action='store_true')
     parser.add_argument('--no-override', dest='override', action='store_false')
     parser.set_defaults(override=False)
+    parser.add_argument('--reindeer-only', dest='reindeer_only', action='store_true')
+    parser.add_argument('--no-reindeer-only', dest='reindeer_only', action='store_false')
+    parser.set_defaults(override=False)
     parser.add_argument('lms_file_name')
 
     args = parser.parse_args()
 
-    spreadAll(args.lms_file_name, rgb=args.RGB, trees=args.trees, override=args.override)
+    spreadAll(
+        args.lms_file_name,
+        rgb=args.RGB,
+        trees=args.trees,
+        reindeer_only=args.reindeer_only,
+        override=args.override
+    )
